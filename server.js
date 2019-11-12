@@ -15,12 +15,12 @@ app.get("/", async (req, res, next) => {
 });
 
 app.get("/api/place", (req, res, next) => {
-  findPlaces().then(data => res.send(data));
+  return findPlaces().then(data => res.send(data));
 });
-app.get("/api/person", async (req, res, next) => {
-  findPersons().then(data => res.send(data));
+app.get("/api/person", (req, res, next) => {
+  return findPersons().then(data => res.send(data));
 });
-app.get("/api/things", async (req, res, next) => {
+app.get("/api/things", (req, res, next) => {
   findThings().then(data => res.send(data));
 });
 

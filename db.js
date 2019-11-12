@@ -33,16 +33,16 @@ Things.belongsTo(Person);
 Person.belongsTo(Place);
 Place.hasMany(Person);
 
-const findPersons = async () => {
-  await Person.findAll();
+const findPersons = () => {
+  Person.findAll();
 };
 
-const findThings = async () => {
-  await Things.findAll();
+const findThings = () => {
+  Things.findAll();
 };
 
-const findPlaces = async () => {
-  await Place.findAll();
+const findPlaces = () => {
+  Place.findAll();
 };
 
 const seed = async () => {
@@ -57,8 +57,13 @@ const seed = async () => {
   });
 };
 
-const syncAndSeed = ({ force = true }) => {
-  seed().then(res => res);
+const syncAndSeed = (force = true) => {
+  connection
+    .sync()
+    .then(() => {
+      seed();
+    })
+    .then(res => res);
 };
 
 module.exports = {
