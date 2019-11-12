@@ -1,9 +1,12 @@
-const Sequelize = require("sequelize");
-const pg = require("pg");
-const connection = new Sequelize("postgres://localhost:5432/acmenouns");
+const Sequelize = require('sequelize');
+
 const { STRING } = Sequelize;
 
-const Person = connection.define("person", {
+const db = new Sequelize('postgres://localhost:5432/acmenouns', {
+  logging: false
+});
+
+const Person = db.define('person', {
   name: {
     type: STRING,
     allowNull: false,
@@ -11,7 +14,7 @@ const Person = connection.define("person", {
     allEmpty: false
   }
 });
-const Place = connection.define("place", {
+const Place = db.define('place', {
   name: {
     type: STRING,
     allowNull: false,
@@ -19,7 +22,7 @@ const Place = connection.define("place", {
     allEmpty: false
   }
 });
-const Things = connection.define("things", {
+const Thing = db.define('things', {
   name: {
     type: STRING,
     allowNull: false,
@@ -28,47 +31,37 @@ const Things = connection.define("things", {
   }
 });
 
-Person.hasMany(Things);
-Things.belongsTo(Person);
 Person.belongsTo(Place);
 Place.hasMany(Person);
 
-const findPersons = () => {
-  Person.findAll();
-};
-
-const findThings = () => {
-  Things.findAll();
-};
-
-const findPlaces = () => {
-  Place.findAll();
-};
+Thing.belongsTo(Person);
+Person.hasMany(Thing);
 
 const seed = async () => {
-  const john = await Person.create({
-    name: "John"
-  });
   const nyc = await Place.create({
-    name: "NYC"
+    name: 'NYC'
   });
-  const cat = await Things.create({
-    name: "Cat"
+
+  const john = await Person.create({
+    name: 'John',
+    placeId: nyc.id
+  });
+
+  const cat = await Thing.create({
+    name: 'Cat',
+    personId: john.id
   });
 };
 
-const syncAndSeed = (force = true) => {
-  connection
-    .sync()
-    .then(() => {
-      seed();
-    })
-    .then(res => res);
+const syncAndSeed = () => {
+  return db.sync({ force: true })
+    .then(() => seed())
+    .catch(e => console.error(e))
 };
 
 module.exports = {
-  syncAndSeed,
-  findPersons,
-  findThings,
-  findPlaces
+  Person,
+  Place,
+  Thing,
+  syncAndSeed
 };
